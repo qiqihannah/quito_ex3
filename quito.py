@@ -215,10 +215,10 @@ def _judge_ass_result(inputs, outputs, pvalue, f):
             f.write("Result: Inconclusive")
             f.write('\n')
 
-def _process_bar(percent, start_str='', end_str='', total_length=0):
-    bar = ''.join(['#'] * int(percent * total_length)) + ''
-    bar = '\r' + start_str + bar.ljust(total_length) + ' {:0>4.1f}%|'.format(percent*100) + end_str
-    print(bar, end='', flush=True)
+# def _process_bar(percent, start_str='', end_str='', total_length=0):
+#     bar = ''.join(['#'] * int(percent * total_length)) + ''
+#     bar = '\r' + start_str + bar.ljust(total_length) + ' {:0>4.1f}%|'.format(percent*100) + end_str
+#     print(bar, end='', flush=True)
 
 def _input_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, module_name, program_folder):
     global T2
@@ -242,7 +242,7 @@ def _input_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, 
     for g in range(M):
         for t in range(r):
             co += 1
-            _process_bar(co/K, start_str='',end_str='100%',total_length=30)
+            # _process_bar(co/K, start_str='',end_str='100%',total_length=30)
             for i in unique_inputs: #i为input
                 count_cases += 1
                 start = time.time()
@@ -326,7 +326,7 @@ def input_coverage_partial(inputID, valid_input, valid_output, num_qubit, output
     for g in range(M):
         for t in range(r):
             co += 1
-            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             for i in all_inputs: #i为input
                 count_cases += 1
                 start = time.time()
@@ -403,7 +403,7 @@ def input_coverage_no(inputID, outputID, num_qubit, module_name, program_folder)
     for g in range(M):
         for t in range(r):
             co += 1
-            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             for i in all_inputs: #i为input
                 count_cases += 1
                 start = time.time()
@@ -450,7 +450,7 @@ def output_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, 
     for g in range(M):
         for t in range(r):
             co += 1
-            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             exe_count = 0
             while True:
                 for i in unique_inputs:
@@ -549,7 +549,7 @@ def output_coverage_partial(inputID, valid_input, valid_output, num_qubit, outpu
     for g in range(M):
         for t in range(r):
             co += 1
-            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             exe_count = 0
             while True:
                 for i in all_inputs:
@@ -640,7 +640,7 @@ def output_coverage_no(inputID, outputID, num_qubit, module_name, program_folder
     for g in range(M):
         for t in range(r):
             co += 1
-            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             exe_count = 0
             while True:
                 for i in all_inputs:
@@ -698,7 +698,7 @@ def input_output_coverage(inputID, valid_input, valid_output, num_qubit, outputI
     for g in range(M):
         for t in range(r):
             co += 1
-            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             i_index = 0
             for i in unique_inputs:
                 exe_count = 0 #count of executing of one input
@@ -799,7 +799,7 @@ def input_output_coverage_partial(inputID, valid_input, valid_output, num_qubit,
     for g in range(M):
         for t in range(r):
             co += 1
-            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             for i in all_inputs:
                 exe_count = 0 #count of executing of one input
                 while True:
@@ -882,7 +882,7 @@ def input_output_coverage_no(inputID, outputID, num_qubit, module_name, program_
     for g in range(M):
         for t in range(r):
             co += 1
-            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             for i in all_inputs:
                 exe_count = 0 #count of executing of one input
                 while True:
@@ -995,7 +995,7 @@ def _quito_run(root_con):
     if ps_category != 'no' and ps_category != 'partial' and ps_category != 'full':
         print("Error: The format of program specification category is wrong.")
         _end_running()
-    print(ps_category)
+    # print(ps_category)
     #get quantum program
     root = config.get('program','root')
     # print(root)
@@ -1020,7 +1020,7 @@ def _quito_run(root_con):
 
     #ps_category = config.get('program_specification_category','ps_category')
     coverage_criterion = config.get('quito_configuration', 'coverage_criterion')
-    print(coverage_criterion)
+    # print(coverage_criterion)
     if coverage_criterion != 'IC' and coverage_criterion != 'OC' and coverage_criterion != 'IOC':
         print("Error: The format of coverage criterion is not right.")
         _end_running()
