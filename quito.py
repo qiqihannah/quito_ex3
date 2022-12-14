@@ -16,6 +16,8 @@ import os.path
 import importlib
 import time
 import warnings
+from scipy.stats import wilcoxon
+
 
 import logging
 from rpy2.rinterface_lib.callbacks import logger as rpy2_logger
@@ -158,7 +160,7 @@ def _execute_quantum_program(inputID, outputID, num_qubit, i, module_name):
     module = importlib.import_module(module_name)
     run_method = getattr(module,"run")
     run_method(qc)
-    result = execute(qc, Aer.get_backend('qasm_simulator'), shots=1).result().get_counts(qc)
+    result = execute(qc, Aer.get_backend('aer_simulator'), shots=1).result().get_counts(qc)
     return result
 
 def _check_same(l,value):
@@ -179,16 +181,19 @@ def _check_WOO(i, o , valid_inputs, valid_outputs):
 
 def _wilcoxon(fre,p):
     pvalue = []
+    res = []
     for i in range(len(p)):
         if np.isnan(fre[i]).any() == True:
             pvalue.append(-1)
+            res.appen(-1)
         elif _check_same(fre[i],p[i]) == True:
             # print('exactly the same')
             pvalue.append(1)
+            res.append((1))
         else:
             fre_r = robjects.FloatVector(fre[i])
-            # print('fre='+str(fre[i]))
-            # print('p='+str(p[i]))
+            print('fre='+str(fre[i]))
+            print('p='+str(p[i]))
             robjects.r('''
                         wtest<-function(data,exp,c_level){
                             test_result <- wilcox.test(data, mu = exp, conf.int = TRUE, conf.level = 1-c_level)
@@ -198,7 +203,15 @@ def _wilcoxon(fre,p):
             ''')
             t = robjects.r['wtest'](fre_r, p[i], C_LEVEL)
             pvalue.append(t[0])
-    #print(pvalue)
+            # print("r: "+str(pvalue))
+            # print(fre[i])
+            # print(p[i])
+            p_list = [p[i]]*len(fre[i])
+            res.append(wilcoxon(fre[i],p_list))
+            # print("p: " + str(res))
+        print(res)
+        print(pvalue)
+
     return pvalue
 
 def _judge_ass_result(inputs, outputs, pvalue, f):
@@ -215,10 +228,10 @@ def _judge_ass_result(inputs, outputs, pvalue, f):
             f.write("Result: Inconclusive")
             f.write('\n')
 
-# def _process_bar(percent, start_str='', end_str='', total_length=0):
-#     bar = ''.join(['#'] * int(percent * total_length)) + ''
-#     bar = '\r' + start_str + bar.ljust(total_length) + ' {:0>4.1f}%|'.format(percent*100) + end_str
-#     print(bar, end='', flush=True)
+def _process_bar(percent, start_str='', end_str='', total_length=0):
+    bar = ''.join(['#'] * int(percent * total_length)) + ''
+    bar = '\r' + start_str + bar.ljust(total_length) + ' {:0>4.1f}%|'.format(percent*100) + end_str
+    print(bar, end='', flush=True)
 
 def _input_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, module_name, program_folder):
     global T2
@@ -242,7 +255,7 @@ def _input_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, 
     for g in range(M):
         for t in range(r):
             co += 1
-            # _process_bar(co/K, start_str='',end_str='100%',total_length=30)
+            _process_bar(co/K, start_str='',end_str='100%',total_length=30)
             for i in unique_inputs: #i为input
                 count_cases += 1
                 start = time.time()
@@ -293,6 +306,8 @@ def _input_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, 
         sum = np.zeros(M)
 
     #print(fre)
+    # print(fre)
+    # print(p)
     pvalue = _wilcoxon(fre,p)
     _judge_ass_result(valid_input, valid_output, pvalue, ass_file)
 
@@ -326,7 +341,7 @@ def input_coverage_partial(inputID, valid_input, valid_output, num_qubit, output
     for g in range(M):
         for t in range(r):
             co += 1
-            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             for i in all_inputs: #i为input
                 count_cases += 1
                 start = time.time()
@@ -403,7 +418,7 @@ def input_coverage_no(inputID, outputID, num_qubit, module_name, program_folder)
     for g in range(M):
         for t in range(r):
             co += 1
-            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             for i in all_inputs: #i为input
                 count_cases += 1
                 start = time.time()
@@ -450,7 +465,7 @@ def output_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, 
     for g in range(M):
         for t in range(r):
             co += 1
-            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             exe_count = 0
             while True:
                 for i in unique_inputs:
@@ -549,7 +564,7 @@ def output_coverage_partial(inputID, valid_input, valid_output, num_qubit, outpu
     for g in range(M):
         for t in range(r):
             co += 1
-            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             exe_count = 0
             while True:
                 for i in all_inputs:
@@ -640,7 +655,7 @@ def output_coverage_no(inputID, outputID, num_qubit, module_name, program_folder
     for g in range(M):
         for t in range(r):
             co += 1
-            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             exe_count = 0
             while True:
                 for i in all_inputs:
@@ -698,7 +713,7 @@ def input_output_coverage(inputID, valid_input, valid_output, num_qubit, outputI
     for g in range(M):
         for t in range(r):
             co += 1
-            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             i_index = 0
             for i in unique_inputs:
                 exe_count = 0 #count of executing of one input
@@ -799,7 +814,7 @@ def input_output_coverage_partial(inputID, valid_input, valid_output, num_qubit,
     for g in range(M):
         for t in range(r):
             co += 1
-            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             for i in all_inputs:
                 exe_count = 0 #count of executing of one input
                 while True:
@@ -882,7 +897,7 @@ def input_output_coverage_no(inputID, outputID, num_qubit, module_name, program_
     for g in range(M):
         for t in range(r):
             co += 1
-            # _process_bar(co / K, start_str='', end_str='100%', total_length=30)
+            _process_bar(co / K, start_str='', end_str='100%', total_length=30)
             for i in all_inputs:
                 exe_count = 0 #count of executing of one input
                 while True:
