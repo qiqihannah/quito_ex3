@@ -1,8 +1,6 @@
 import math
 
 def run(qc):
-    qc.mct([0, 2, 3, 4], 5)  # M3
-
     qc.h(2)
     qc.p(math.pi / 4, 2)
 
