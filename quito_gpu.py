@@ -30,6 +30,17 @@ T2 = 0
 START = 0
 ROOT = '/'
 
+cuda.to_device(K, to=cuda.device_array(1))
+cuda.to_device(M, to=cuda.device_array(1))
+cuda.to_device(BUDGET, to=cuda.device_array(1))
+cuda.to_device(C_LEVEL, to=cuda.device_array(1))
+cuda.to_device(S_TEST, to=cuda.device_array(1))
+cuda.to_device(T1, to=cuda.device_array(1))
+cuda.to_device(T2, to=cuda.device_array(1))
+cuda.to_device(START, to=cuda.device_array(1))
+cuda.to_device(ROOT, to=cuda.device_array(1))
+
+
 
 def quito(
         con_file: str
@@ -194,7 +205,6 @@ def _process_bar(percent, start_str='', end_str='', total_length=0):
 @jit(target_backend='cuda')
 def _input_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, module_name, program_folder):
     global T2
-    T2=0
     #resultFolder = "./result/"
     resultFolder = program_folder+ROOT+"result"+ROOT
     if not os.path.exists(resultFolder):
@@ -221,7 +231,7 @@ def _input_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, 
                 start = time.time()
                 result = _execute_quantum_program(inputID, outputID, num_qubit, i, module_name)
                 end = time.time()
-                # T2 += end-start
+                T2 += end-start
                 input_file.write(str(i)+' ')
                 # print(i)
                 # print(result)
