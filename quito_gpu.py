@@ -194,6 +194,7 @@ def _process_bar(percent, start_str='', end_str='', total_length=0):
 @jit(target_backend='cuda')
 def _input_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, module_name, program_folder):
     global T2
+    T2=0
     #resultFolder = "./result/"
     resultFolder = program_folder+ROOT+"result"+ROOT
     if not os.path.exists(resultFolder):
@@ -220,7 +221,7 @@ def _input_coverage(inputID, valid_input, valid_output, num_qubit, outputID, p, 
                 start = time.time()
                 result = _execute_quantum_program(inputID, outputID, num_qubit, i, module_name)
                 end = time.time()
-                T2 += end-start
+                # T2 += end-start
                 input_file.write(str(i)+' ')
                 # print(i)
                 # print(result)
