@@ -1,4 +1,5 @@
-from quito.quito_coverage import quito
+#from quito.quito_coverage import quito
+from quito import quito
 import time
 start = time.time()
 i = 0
